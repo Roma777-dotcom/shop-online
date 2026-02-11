@@ -1,0 +1,175 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Регистрация - E-Shop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <!-- Карточка регистрации -->
+            <div class="card-glass animate-on-scroll">
+                <div class="card-body p-5">
+                    <!-- Заголовок -->
+                    <div class="text-center mb-5">
+                        <div class="feature-icon mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-user-plus fa-2x"></i>
+                        </div>
+                        <h2 class="text-gradient">Регистрация</h2>
+                        <p class="text-muted">Создайте аккаунт для удобных покупок</p>
+                    </div>
+                    
+                    <!-- Форма регистрации -->
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <!-- Имя -->
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Имя
+                                </label>
+                                {{ form.first_name }}
+                                {% if form.first_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.first_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Фамилия -->
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    <i class="fas fa-user me-2"></i>Фамилия
+                                </label>
+                                {{ form.last_name }}
+                                {% if form.last_name.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.last_name.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Email -->
+                            <div class="col-md-12 mb-4">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    <i class="fas fa-envelope me-2"></i>Email
+                                </label>
+                                {{ form.email }}
+                                {% if form.email.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.email.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Телефон -->
+                            <div class="col-md-12 mb-4">
+                                <label for="{{ form.phone.id_for_label }}" class="form-label">
+                                    <i class="fas fa-phone me-2"></i>Телефон
+                                </label>
+                                {{ form.phone }}
+                                {% if form.phone.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.phone.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                            
+                            <!-- Пароль -->
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Пароль
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password1.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                                <div class="small text-muted mt-1">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    Минимум 8 символов
+                                </div>
+                            </div>
+                            
+                            <!-- Подтверждение пароля -->
+                            <div class="col-md-6 mb-4">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                    <i class="fas fa-lock me-2"></i>Подтверждение пароля
+                                </label>
+                                {{ form.password2 }}
+                                {% if form.password2.errors %}
+                                <div class="text-danger small mt-1">
+                                    {% for error in form.password2.errors %}
+                                        {{ error }}
+                                    {% endfor %}
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                        
+                        <!-- Условия -->
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="agreeTerms" required>
+                            <label class="form-check-label" for="agreeTerms">
+                                Я согласен с <a href="#" class="text-decoration-none">условиями использования</a> и <a href="#" class="text-decoration-none">политикой конфиденциальности</a>
+                            </label>
+                        </div>
+                        
+                        <!-- Кнопка регистрации -->
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-gradient btn-lg">
+                                <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                            </button>
+                        </div>
+                        
+                        <!-- Вход -->
+                        <div class="text-center">
+                            <p class="text-muted mb-2">Уже есть аккаунт?</p>
+                            <a href="{% url 'accounts:login' %}" class="btn btn-outline-gradient">
+                                <i class="fas fa-sign-in-alt me-2"></i>Войти
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Преимущества -->
+            <div class="row mt-4">
+                <div class="col-md-4 mb-3">
+                    <div class="text-center p-3 card-glass">
+                        <i class="fas fa-truck text-primary fa-2x mb-2"></i>
+                        <h6 class="mb-1">Быстрая доставка</h6>
+                        <p class="small text-muted mb-0">Доставка за 1-3 дня</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="text-center p-3 card-glass">
+                        <i class="fas fa-shield-alt text-success fa-2x mb-2"></i>
+                        <h6 class="mb-1">Безопасность</h6>
+                        <p class="small text-muted mb-0">Защита данных</p>
+                    </div>
+                </div>
+                <div class="col-md-4 mb-3">
+                    <div class="text-center p-3 card-glass">
+                        <i class="fas fa-percent text-warning fa-2x mb-2"></i>
+                        <h6 class="mb-1">Скидки</h6>
+                        <p class="small text-muted mb-0">Эксклюзивные предложения</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

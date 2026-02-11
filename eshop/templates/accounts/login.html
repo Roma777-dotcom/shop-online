@@ -1,0 +1,145 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Вход в систему - E-Shop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6">
+            <!-- Карточка входа -->
+            <div class="card-glass animate-on-scroll">
+                <div class="card-body p-5">
+                    <!-- Заголовок -->
+                    <div class="text-center mb-4">
+                        <div class="feature-icon mx-auto mb-3" style="width: 80px; height: 80px;">
+                            <i class="fas fa-sign-in-alt fa-2x"></i>
+                        </div>
+                        <h2 class="text-gradient">Вход в систему</h2>
+                        <p class="text-muted">Введите свои данные для входа</p>
+                    </div>
+                    
+                    <!-- Форма входа -->
+                    <form method="post" novalidate>
+                        {% csrf_token %}
+                        
+                        <!-- Поле email -->
+                        <div class="mb-4">
+                            <label for="{{ form.username.id_for_label }}" class="form-label">
+                                <i class="fas fa-envelope me-2"></i>Email
+                            </label>
+                            {{ form.username }}
+                            {% if form.username.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.username.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Поле пароля -->
+                        <div class="mb-4">
+                            <label for="{{ form.password.id_for_label }}" class="form-label">
+                                <i class="fas fa-lock me-2"></i>Пароль
+                            </label>
+                            {{ form.password }}
+                            {% if form.password.errors %}
+                            <div class="text-danger small mt-1">
+                                {% for error in form.password.errors %}
+                                    {{ error }}
+                                {% endfor %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        
+                        <!-- Запомнить меня -->
+                        <div class="mb-4 form-check">
+                            <input type="checkbox" class="form-check-input" id="rememberMe" name="remember_me">
+                            <label class="form-check-label" for="rememberMe">Запомнить меня</label>
+                        </div>
+                        
+                        <!-- Общие ошибки формы -->
+                        {% if form.non_field_errors %}
+                        <div class="alert alert-danger">
+                            {% for error in form.non_field_errors %}
+                                {{ error }}
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <!-- Кнопка входа -->
+                        <div class="d-grid mb-4">
+                            <button type="submit" class="btn btn-gradient btn-lg">
+                                <i class="fas fa-sign-in-alt me-2"></i>Войти
+                            </button>
+                        </div>
+                        
+                        <!-- Вспомогательные ссылки -->
+                        <div class="text-center mb-3">
+                            <a href="#" class="text-decoration-none text-muted">
+                                <i class="fas fa-question-circle me-1"></i>Забыли пароль?
+                            </a>
+                        </div>
+                        
+                        <!-- Разделитель -->
+                        <div class="position-relative text-center my-4">
+                            <hr>
+                            <span class="position-absolute top-50 start-50 translate-middle bg-white px-3 text-muted">
+                                или
+                            </span>
+                        </div>
+                        
+                        <!-- Регистрация -->
+                        <div class="text-center">
+                            <p class="text-muted mb-2">Еще нет аккаунта?</p>
+                            <a href="{% url 'accounts:register' %}" class="btn btn-outline-gradient">
+                                <i class="fas fa-user-plus me-2"></i>Зарегистрироваться
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Информация -->
+            <div class="mt-4 text-center">
+                <p class="text-muted small">
+                    <i class="fas fa-shield-alt me-1"></i>
+                    Ваши данные защищены. Мы используем современные технологии шифрования.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Стили для формы */
+    .form-control {
+        border: 2px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 12px 15px;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 8px;
+    }
+    
+    /* Стили для чекбокса */
+    .form-check-input:checked {
+        background-color: #667eea;
+        border-color: #667eea;
+    }
+    
+    .form-check-label {
+        color: #666;
+    }
+</style>
+{% endblock %}

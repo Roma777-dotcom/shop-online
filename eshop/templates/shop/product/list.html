@@ -1,0 +1,378 @@
+{% extends "base.html" %} {% load static %} {% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/shop.css' %}" />
+{% endblock %} {% block content %}
+<!-- Герой-секция -->
+<section class="hero-section animate-on-scroll">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6">
+        <div class="hero-content">
+          <h1 class="display-4 fw-bold mb-4">
+            Найдите идеальные товары для себя
+          </h1>
+          <p class="lead mb-4">
+            Более 1000 товаров по лучшим ценам с бесплатной доставкой по всей
+            России
+          </p>
+          <div class="d-flex gap-3">
+            <a
+              href="{% url 'shop:category_list' %}"
+              class="btn btn-light btn-lg"
+            >
+              <i class="fas fa-shopping-bag me-2"></i> Начать покупки
+            </a>
+            <a href="#features" class="btn btn-outline-light btn-lg">
+              <i class="fas fa-info-circle me-2"></i> Узнать больше
+            </a>
+          </div>
+        </div>
+      </div>
+      <div class="col-lg-6">
+        <div class="text-center">
+          <img
+            src="{% static 'images/hero-illustration.jpg' %}"
+            alt="Покупки"
+            class="img-fluid"
+            style="max-height: 400px"
+          />
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div class="container">
+  <!-- Категории -->
+  <section class="mb-5 animate-on-scroll">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="text-gradient">Популярные категории</h2>
+      <a href="{% url 'shop:category_list' %}" class="text-decoration-none">
+        Все категории <i class="fas fa-arrow-right ms-1"></i>
+      </a>
+    </div>
+    <div class="row">
+      {% for category in categories|slice:":4" %}
+      <div class="col-lg-3 col-md-6 mb-4">
+        <a
+          href="{% url 'shop:product_list_by_category' category.slug %}"
+          class="text-decoration-none"
+        >
+          <div class="category-card card-glass h-100">
+            <div class="position-relative">
+              {% if category.image %}
+              <img
+                src="{{ category.image.url }}"
+                class="category-image w-100"
+                alt="{{ category.name }}"
+              />
+              {% else %}
+              <div
+                class="category-image w-100 bg-light d-flex align-items-center justify-content-center"
+              >
+                <i class="fas fa-tag fa-3x text-secondary"></i>
+              </div>
+              {% endif %}
+              <div class="position-absolute bottom-0 start-0 m-3">
+                <span class="category-badge"
+                  >{{ category.products.count }} товаров</span
+                >
+              </div>
+            </div>
+            <div class="p-3">
+              <h5 class="mb-0">{{ category.name }}</h5>
+              {% if category.description %}
+              <p class="text-muted small mt-2 mb-0">
+                {{ category.description|truncatechars:60 }}
+              </p>
+              {% endif %}
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- Товары -->
+  <section class="mb-5 animate-on-scroll">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+      <h2 class="text-gradient">Популярные товары</h2>
+      <div class="dropdown">
+        <button
+          class="btn btn-outline-gradient dropdown-toggle"
+          type="button"
+          data-bs-toggle="dropdown"
+        >
+          <i class="fas fa-sort me-1"></i> Сортировка
+        </button>
+        <ul class="dropdown-menu">
+          <li>
+            <a class="dropdown-item" href="?sort=popular">По популярности</a>
+          </li>
+          <li>
+            <a class="dropdown-item" href="?sort=price_asc"
+              >По возрастанию цены</a
+            >
+          </li>
+          <li>
+            <a class="dropdown-item" href="?sort=price_desc"
+              >По убыванию цены</a
+            >
+          </li>
+          <li><a class="dropdown-item" href="?sort=new">Новинки</a></li>
+        </ul>
+      </div>
+    </div>
+
+    {% if products %}
+    <div class="row">
+      {% for product in products|slice:":8" %}
+      <div class="col-xl-3 col-lg-4 col-md-6 mb-4">
+        <div class="product-card card-glass h-100">
+          <div class="position-relative overflow-hidden">
+            <a href="{% url 'shop:product_detail' product.id product.slug %}">
+              {% if product.images.first %}
+              <img
+                src="{{ product.images.first.image.url }}"
+                class="product-image w-100"
+                alt="{{ product.name }}"
+              />
+              {% else %}
+              <div
+                class="product-image w-100 bg-light d-flex align-items-center justify-content-center"
+              >
+                <i class="fas fa-image fa-3x text-secondary"></i>
+              </div>
+              {% endif %}
+            </a>
+
+            <!-- Бейджи -->
+            <div class="position-absolute top-0 start-0 m-2">
+              {% if product.stock < 10 and product.stock > 0 %}
+              <span class="badge bg-warning">Мало</span>
+              {% endif %}
+            </div>
+
+            <!-- Кнопка быстрого добавления -->
+            <div class="position-absolute bottom-0 end-0 m-2">
+              <form
+                action="{% url 'cart:cart_add' product.id %}"
+                method="post"
+                class="d-inline"
+              >
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1" />
+                <button
+                  type="submit"
+                  class="btn btn-gradient btn-sm rounded-circle"
+                  title="Добавить в корзину"
+                >
+                  <i class="fas fa-cart-plus"></i>
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <div class="p-3 d-flex flex-column h-100">
+            <!-- Категория -->
+            <div class="mb-2">
+              <a
+                href="{% url 'shop:product_list_by_category' product.category.slug %}"
+                class="badge bg-light text-dark text-decoration-none"
+              >
+                {{ product.category.name }}
+              </a>
+            </div>
+
+            <!-- Название -->
+            <h5 class="mb-2">
+              <a
+                href="{% url 'shop:product_detail' product.id product.slug %}"
+                class="text-decoration-none text-dark"
+              >
+                {{ product.name|truncatechars:50 }}
+              </a>
+            </h5>
+
+            <!-- Описание -->
+            <p class="text-muted small flex-grow-1">
+              {{ product.description|truncatechars:80 }}
+            </p>
+
+            <!-- Цена и наличие -->
+            <div
+              class="d-flex justify-content-between align-items-center mt-auto"
+            >
+              <div>
+                <div class="product-price">{{ product.price }} ₽</div>
+                {% if product.stock > 10 %}
+                <div class="text-success small">
+                  <i class="fas fa-check-circle"></i> В наличии
+                </div>
+                {% elif product.stock > 0 %}
+                <div class="text-warning small">
+                  <i class="fas fa-exclamation-triangle"></i> Осталось {{
+                  product.stock }} шт.
+                </div>
+                {% else %}
+                <div class="text-danger small">
+                  <i class="fas fa-times-circle"></i> Нет в наличии
+                </div>
+                {% endif %}
+              </div>
+
+              <!-- Рейтинг -->
+              <div class="text-warning">
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star"></i>
+                <i class="fas fa-star-half-alt"></i>
+              </div>
+            </div>
+
+            <!-- Кнопки -->
+            <div class="d-grid gap-2 mt-3">
+              {% if product.stock > 0 %}
+              <form action="{% url 'cart:cart_add' product.id %}" method="post">
+                {% csrf_token %}
+                <input type="hidden" name="quantity" value="1" />
+                <button type="submit" class="btn btn-gradient w-100">
+                  <i class="fas fa-cart-plus me-2"></i> В корзину
+                </button>
+              </form>
+              {% else %}
+              <button class="btn btn-secondary w-100" disabled>
+                <i class="fas fa-ban me-2"></i> Нет в наличии
+              </button>
+              {% endif %}
+
+              <a
+                href="{% url 'shop:product_detail' product.id product.slug %}"
+                class="btn btn-outline-gradient"
+              >
+                <i class="fas fa-info-circle me-2"></i> Подробнее
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <!-- Кнопка "Показать еще" -->
+    <div class="text-center mt-4">
+      <a href="{% url 'shop:category_list' %}" class="btn btn-gradient btn-lg">
+        <i class="fas fa-store me-2"></i> Все товары
+      </a>
+    </div>
+
+    {% else %}
+    <!-- Если товаров нет -->
+    <div class="text-center py-5">
+      <div class="mb-4">
+        <i class="fas fa-box-open fa-5x text-muted"></i>
+      </div>
+      <h3 class="text-muted">Товары не найдены</h3>
+      <p class="text-muted mb-4">
+        {% if category %} В категории "{{ category.name }}" пока нет товаров. {%
+        else %} В нашем магазине пока нет товаров. {% endif %}
+      </p>
+      {% if user.is_staff %}
+      <a
+        href="/admin/shop/product/add/"
+        target="_blank"
+        class="btn btn-gradient"
+      >
+        <i class="fas fa-plus me-2"></i> Добавить первый товар
+      </a>
+      {% endif %}
+    </div>
+    {% endif %}
+  </section>
+
+  <!-- Преимущества -->
+  <section id="features" class="mb-5 animate-on-scroll">
+    <h2 class="text-center text-gradient mb-5">Почему выбирают нас</h2>
+    <div class="row">
+      <div class="col-md-3 mb-4">
+        <div class="text-center p-4 card-glass h-100">
+          <div class="feature-icon mb-3">
+            <i class="fas fa-shipping-fast"></i>
+          </div>
+          <h5>Быстрая доставка</h5>
+          <p class="text-muted">Доставка по всей России за 1-3 дня</p>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="text-center p-4 card-glass h-100">
+          <div class="feature-icon mb-3">
+            <i class="fas fa-shield-alt"></i>
+          </div>
+          <h5>Гарантия качества</h5>
+          <p class="text-muted">Все товары проверены и сертифицированы</p>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="text-center p-4 card-glass h-100">
+          <div class="feature-icon mb-3">
+            <i class="fas fa-headset"></i>
+          </div>
+          <h5>Поддержка 24/7</h5>
+          <p class="text-muted">Круглосуточная поддержка клиентов</p>
+        </div>
+      </div>
+      <div class="col-md-3 mb-4">
+        <div class="text-center p-4 card-glass h-100">
+          <div class="feature-icon mb-3">
+            <i class="fas fa-undo"></i>
+          </div>
+          <h5>Легкий возврат</h5>
+          <p class="text-muted">Возврат в течение 30 дней без вопросов</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- Рассылка -->
+<div class="newsletter animate-on-scroll">
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-md-6">
+        <h3 class="text-white mb-3">Подпишитесь на рассылку</h3>
+        <p class="text-white-50">
+          Получайте первыми информацию о скидках и новых поступлениях
+        </p>
+      </div>
+      <div class="col-md-6">
+        <form class="d-flex">
+          <input
+            type="email"
+            class="form-control me-2"
+            placeholder="Ваш email"
+          />
+          <button type="submit" class="btn btn-light">
+            <i class="fas fa-paper-plane"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // Анимация при наведении на карточки
+  document.addEventListener("DOMContentLoaded", function () {
+    const productCards = document.querySelectorAll(".product-card");
+    productCards.forEach((card) => {
+      card.addEventListener("mouseenter", function () {
+        this.style.transform = "translateY(-10px)";
+      });
+      card.addEventListener("mouseleave", function () {
+        this.style.transform = "translateY(0)";
+      });
+    });
+  });
+</script>
+{% endblock %}

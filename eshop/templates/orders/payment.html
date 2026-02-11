@@ -1,0 +1,155 @@
+{% extends "base.html" %}
+
+{% block title %}Оплата заказа #{{ order.id }} - E-Shop{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="card shadow">
+                <div class="card-header bg-primary text-white">
+                    <h3 class="mb-0">
+                        <i class="bi bi-credit-card"></i> Оплата заказа #{{ order.id }}
+                    </h3>
+                </div>
+                <div class="card-body">
+                    <!-- Информация о заказе -->
+                    <div class="alert alert-info">
+                        <h5 class="alert-heading"><i class="bi bi-info-circle"></i> Информация о заказе</h5>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Сумма к оплате:</strong> <span class="fs-4 text-success">{{ order.total_cost }} ₽</span></p>
+                                <p><strong>Способ оплаты:</strong> 
+                                    {% if order.payment_method == 'card' %}
+                                        Банковская карта
+                                    {% elif order.payment_method == 'online' %}
+                                        Онлайн платеж
+                                    {% endif %}
+                                </p>
+                            </div>
+                            <div class="col-md-6">
+                                <p><strong>Имя:</strong> {{ order.first_name }} {{ order.last_name }}</p>
+                                <p><strong>Email:</strong> {{ order.email }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Форма оплаты (симуляция) -->
+                    <div id="payment-form">
+                        <h5 class="mb-3">Данные банковской карты</h5>
+                        <form id="card-form" method="post" action="{% url 'orders:payment_done' order.id %}">
+                            {% csrf_token %}
+                            
+                            <div class="mb-3">
+                                <label for="card-number" class="form-label">Номер карты</label>
+                                <div class="input-group">
+                                    <span class="input-group-text"><i class="bi bi-credit-card"></i></span>
+                                    <input type="text" class="form-control" id="card-number" 
+                                           placeholder="0000 0000 0000 0000" maxlength="19" required>
+                                </div>
+                            </div>
+                            
+                            <div class="row">
+                                <div class="col-md-6 mb-3">
+                                    <label for="card-expiry" class="form-label">Срок действия</label>
+                                    <input type="text" class="form-control" id="card-expiry" 
+                                           placeholder="MM/YY" maxlength="5" required>
+                                </div>
+                                <div class="col-md-6 mb-3">
+                                    <label for="card-cvv" class="form-label">CVV</label>
+                                    <div class="input-group">
+                                        <input type="password" class="form-control" id="card-cvv" 
+                                               placeholder="***" maxlength="3" required>
+                                        <span class="input-group-text"><i class="bi bi-question-circle" title="3 цифры на обратной стороне карты"></i></span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="card-holder" class="form-label">Имя владельца карты</label>
+                                <input type="text" class="form-control" id="card-holder" 
+                                       placeholder="IVAN IVANOV" required>
+                            </div>
+
+                            <div class="alert alert-warning">
+                                <i class="bi bi-shield-lock"></i>
+                                <small>Это демо-версия. Не вводите реальные данные карты. Оплата будет симулирована.</small>
+                            </div>
+                            
+                            <div class="d-grid gap-2">
+                                <button type="submit" class="btn btn-success btn-lg" id="pay-button">
+                                    <i class="bi bi-check-circle"></i> Оплатить {{ order.total_cost }} ₽
+                                </button>
+                                <a href="{% url 'orders:payment_canceled' order.id %}" class="btn btn-outline-danger">
+                                    <i class="bi bi-x-circle"></i> Отменить оплату
+                                </a>
+                            </div>
+                        </form>
+                    </div>
+
+                    <!-- Индикатор загрузки -->
+                    <div id="payment-loading" style="display: none;" class="text-center py-5">
+                        <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                            <span class="visually-hidden">Загрузка...</span>
+                        </div>
+                        <h5 class="mt-3">Обработка платежа...</h5>
+                        <p class="text-muted">Пожалуйста, подождите, не закрывайте страницу</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Информация о безопасности -->
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h6 class="card-title"><i class="bi bi-shield-check"></i> Безопасность платежей</h6>
+                    <ul class="small text-muted mb-0">
+                        <li>Все данные передаются по защищенному соединению SSL</li>
+                        <li>Мы не храним данные вашей банковской карты</li>
+                        <li>Соответствие стандартам PCI DSS</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// Форматирование номера карты
+document.getElementById('card-number').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\s+/g, '').replace(/[^0-9]/gi, '');
+    let formattedValue = '';
+    for (let i = 0; i < value.length; i++) {
+        if (i > 0 && i % 4 === 0) {
+            formattedValue += ' ';
+        }
+        formattedValue += value[i];
+    }
+    e.target.value = formattedValue;
+});
+
+// Форматирование срока действия
+document.getElementById('card-expiry').addEventListener('input', function(e) {
+    let value = e.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+        value = value.substring(0, 2) + '/' + value.substring(2, 4);
+    }
+    e.target.value = value;
+});
+
+// Симуляция обработки платежа
+document.getElementById('card-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    
+    // Скрываем форму и показываем индикатор загрузки
+    document.getElementById('payment-form').style.display = 'none';
+    document.getElementById('payment-loading').style.display = 'block';
+    
+    // Симулируем задержку обработки платежа (2-3 секунды)
+    setTimeout(function() {
+        // Перенаправляем на страницу успешной оплаты
+        window.location.href = "{% url 'orders:payment_done' order.id %}";
+    }, 2500);
+});
+</script>
+{% endblock %}

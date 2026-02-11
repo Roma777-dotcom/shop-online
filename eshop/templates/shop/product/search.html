@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+
+{% block title %}Поиск: {{ query }} - E-Shop{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col">
+        <h1>Результаты поиска</h1>
+        
+        {% if query %}
+        <p class="lead">По запросу "<strong>{{ query }}</strong>" найдено: {{ products.count }} товаров</p>
+        {% endif %}
+        
+        <form method="get" action="{% url 'shop:search' %}" class="mb-4">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control" 
+                       placeholder="Поиск товаров..." value="{{ query }}">
+                <button type="submit" class="btn btn-primary">
+                    <i class="fas fa-search"></i> Искать
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+{% if products %}
+<div class="row">
+    {% for product in products %}
+    <div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <a href="{% url 'shop:product_detail' product.id product.slug %}" 
+                       class="text-decoration-none text-dark">
+                        {{ product.name|truncatechars:40 }}
+                    </a>
+                </h5>
+                <p class="card-text text-primary">{{ product.price }} ₽</p>
+                <p class="card-text small text-muted">
+                    {{ product.description|truncatechars:60 }}
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'shop:product_detail' product.id product.slug %}" 
+                       class="btn btn-outline-primary btn-sm">
+                        Подробнее
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% elif query %}
+<div class="row">
+    <div class="col">
+        <div class="alert alert-warning">
+            <h4 class="alert-heading">Товары не найдены</h4>
+            <p>По вашему запросу "<strong>{{ query }}</strong>" ничего не найдено.</p>
+            <hr>
+            <a href="{% url 'shop:product_list' %}" class="btn btn-primary">
+                <i class="fas fa-home"></i> Перейти в каталог
+            </a>
+        </div>
+    </div>
+</div>
+{% endif %}
+{% endblock %}

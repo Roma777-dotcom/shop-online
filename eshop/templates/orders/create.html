@@ -1,0 +1,197 @@
+{% extends "base.html" %} {% block title %}Оформление заказа - E-Shop{% endblock
+%} {% block content %}
+<div class="row">
+  <div class="col-md-8">
+    <div class="card">
+      <div class="card-header">
+        <h3>Оформление заказа</h3>
+      </div>
+      <div class="card-body">
+        <form method="post">
+          {% csrf_token %}
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="first_name" class="form-label">Имя *</label>
+              <input
+                type="text"
+                name="first_name"
+                id="first_name"
+                class="form-control"
+                value="{{ initial_data.first_name }}"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="last_name" class="form-label">Фамилия *</label>
+              <input
+                type="text"
+                name="last_name"
+                id="last_name"
+                class="form-control"
+                value="{{ initial_data.last_name }}"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="email" class="form-label">Email *</label>
+              <input
+                type="email"
+                name="email"
+                id="email"
+                class="form-control"
+                value="{{ initial_data.email }}"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="phone" class="form-label">Телефон *</label>
+              <input
+                type="tel"
+                name="phone"
+                id="phone"
+                class="form-control"
+                value="{{ initial_data.phone }}"
+                required
+              />
+            </div>
+          </div>
+
+          <div class="mb-3">
+            <label for="address" class="form-label">Адрес доставки *</label>
+            <textarea
+              name="address"
+              id="address"
+              class="form-control"
+              rows="3"
+              required
+            >
+                            {{ initial_data.address }}
+                        </textarea
+            >
+          </div>
+
+          <div class="row mb-4">
+            <div class="col-md-6">
+              <label for="city" class="form-label">Город *</label>
+              <input
+                type="text"
+                name="city"
+                id="city"
+                class="form-control"
+                value="{{ initial_data.city }}"
+                required
+              />
+            </div>
+            <div class="col-md-6">
+              <label for="postal_code" class="form-label"
+                >Почтовый индекс</label
+              >
+              <input
+                type="text"
+                name="postal_code"
+                id="postal_code"
+                class="form-control"
+                value="{{ initial_data.postal_code }}"
+              />
+            </div>
+          </div>
+
+          <div class="mb-4">
+            <label class="form-label fw-bold">Способ оплаты *</label>
+            <div class="payment-methods">
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="payment_method"
+                  id="payment_card"
+                  value="card"
+                  checked
+                />
+                <label class="form-check-label" for="payment_card">
+                  <i class="bi bi-credit-card"></i> Банковская карта (онлайн)
+                </label>
+              </div>
+              <div class="form-check mb-2">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="payment_method"
+                  id="payment_cash"
+                  value="cash"
+                />
+                <label class="form-check-label" for="payment_cash">
+                  <i class="bi bi-cash"></i> Наличные при получении
+                </label>
+              </div>
+              <div class="form-check">
+                <input
+                  class="form-check-input"
+                  type="radio"
+                  name="payment_method"
+                  id="payment_online"
+                  value="online"
+                />
+                <label class="form-check-label" for="payment_online">
+                  <i class="bi bi-wallet2"></i> Онлайн платеж (через платежный
+                  шлюз)
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <i class="bi bi-info-circle"></i>
+            <small
+              >При оплате картой или онлайн вы будете перенаправлены на страницу
+              оплаты после оформления заказа.</small
+            >
+          </div>
+
+          <div class="d-grid">
+            <button type="submit" class="btn btn-success btn-lg">
+              <i class="bi bi-check-circle"></i> Оформить заказ
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-md-4">
+    <div class="card">
+      <div class="card-header">
+        <h4>Ваш заказ</h4>
+      </div>
+      <div class="card-body">
+        <ul class="list-group list-group-flush">
+          {% for item in cart_items %}
+          <li class="list-group-item d-flex justify-content-between">
+            <span>{{ item.product.name }} × {{ item.quantity }}</span>
+            <span>{{ item.total }} ₽</span>
+          </li>
+          {% endfor %}
+          <li class="list-group-item d-flex justify-content-between fw-bold">
+            <span>Итого:</span>
+            <span>{{ total_price }} ₽</span>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="card mt-3">
+      <div class="card-body">
+        <h5>Информация о доставке</h5>
+        <p class="text-muted small">
+          Заказы обрабатываются в течение 24 часов. Стоимость доставки
+          рассчитывается индивидуально.
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,184 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - E-Shop{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-6">
+        <div class="card mb-4">
+            {% if product.images.first %}
+            <img src="{{ product.images.first.image.url }}" 
+                 class="card-img-top" 
+                 alt="{{ product.name }}"
+                 style="max-height: 400px; object-fit: contain;">
+            {% else %}
+            <div class="card-img-top bg-light d-flex align-items-center justify-content-center" 
+                 style="height: 300px;">
+                <i class="fas fa-image fa-5x text-secondary"></i>
+            </div>
+            {% endif %}
+            
+            <div class="card-body">
+                <div class="row">
+                    {% if product.images.all %}
+                        {% for image in product.images.all|slice:":4" %}
+                        <div class="col-3">
+                            <img src="{{ image.image.url }}" 
+                                 class="img-thumbnail" 
+                                 alt="{{ image.description|default:product.name }}"
+                                 style="height: 80px; object-fit: cover;">
+                        </div>
+                        {% endfor %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-body">
+                <h1 class="card-title">{{ product.name }}</h1>
+                <p class="card-text">{{ product.description }}</p>
+                
+                <div class="mb-4">
+                    <h2 class="text-primary">{{ product.price }} ₽</h2>
+                    
+                    <div class="mb-3">
+                        {% if product.stock > 10 %}
+                            <span class="badge bg-success fs-6">В наличии</span>
+                        {% elif product.stock > 0 %}
+                            <span class="badge bg-warning fs-6">Осталось мало: {{ product.stock }} шт.</span>
+                        {% else %}
+                            <span class="badge bg-danger fs-6">Нет в наличии</span>
+                        {% endif %}
+                    </div>
+                </div>
+                
+                {% if product.stock > 0 %}
+                <form action="{% url 'cart:cart_add' product.id %}" method="post" class="row g-3">
+                    {% csrf_token %}
+                    <div class="col-auto">
+                        <label for="quantity" class="form-label">Количество:</label>
+                        <input type="number" name="quantity" id="quantity" 
+                               value="1" min="1" max="{{ product.stock }}" 
+                               class="form-control" style="width: 100px;">
+                    </div>
+                    <div class="col-auto d-flex align-items-end">
+                        <button type="submit" class="btn btn-primary btn-lg">
+                            <i class="fas fa-cart-plus"></i> Добавить в корзину
+                        </button>
+                    </div>
+                </form>
+                {% endif %}
+                
+                <hr>
+                
+                <div class="mt-4">
+                    <h5>Информация о товаре</h5>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Категория:</span>
+                            <span>
+                                <a href="{% url 'shop:product_list_by_category' product.category.slug %}" 
+                                   class="text-decoration-none">
+                                    {{ product.category.name }}
+                                </a>
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Артикул:</span>
+                            <span>#{{ product.id }}</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>На складе:</span>
+                            <span>{{ product.stock }} шт.</span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Статус:</span>
+                            <span>
+                                {% if product.available %}
+                                    <span class="text-success">Доступен</span>
+                                {% else %}
+                                    <span class="text-danger">Недоступен</span>
+                                {% endif %}
+                            </span>
+                        </li>
+                        <li class="list-group-item d-flex justify-content-between">
+                            <span>Добавлен:</span>
+                            <span>{{ product.created|date:"d.m.Y" }}</span>
+                        </li>
+                    </ul>
+                </div>
+                
+                <div class="mt-4">
+                    <a href="{% url 'shop:product_list' %}" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Назад к каталогу
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Похожие товары -->
+{% if product.category.products.count > 1 %}
+<div class="row mt-5">
+    <div class="col">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="mb-0">Похожие товары</h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    {% for similar in product.category.products.exclude(id=product.id).filter(available=True)|slice:":4" %}
+                    <div class="col-lg-3 col-md-6 mb-3">
+                        <div class="card h-100">
+                            <div class="card-body">
+                                <h6 class="card-title">
+                                    <a href="{% url 'shop:product_detail' similar.id similar.slug %}" 
+                                       class="text-decoration-none text-dark">
+                                        {{ similar.name|truncatechars:40 }}
+                                    </a>
+                                </h6>
+                                <p class="card-text text-primary">{{ similar.price }} ₽</p>
+                                <a href="{% url 'shop:product_detail' similar.id similar.slug %}" 
+                                   class="btn btn-sm btn-outline-primary">
+                                    Подробнее
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<style>
+    .card-img-top {
+        background-color: #f8f9fa;
+    }
+    
+    .img-thumbnail {
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .img-thumbnail:hover {
+        transform: scale(1.05);
+        border-color: #007bff;
+    }
+    
+    .list-group-item {
+        border: none;
+        padding: 0.5rem 0;
+    }
+</style>
+{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+{% endblock %}
